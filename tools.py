@@ -146,4 +146,4 @@ class Timer:
 
 def get_prefix(bot, message):
     # TODO: custom prefixes
-    return ";"
+    return commands.when_mentioned_or(";")
