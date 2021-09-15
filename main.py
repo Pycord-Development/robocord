@@ -5,7 +5,7 @@ from tools import Bot, send_code
 
 bot = Bot(command_prefix=';', intents=discord.Intents.all())
 
-brainfuck = bot.command_group("bf", "Commands related to brainfuck.", guild_ids=[881207955029110855])
+brainfuck = bot.command_group("bf", "Commands related to brainfuck.")
 
 
 @brainfuck.command()
@@ -29,7 +29,7 @@ async def decode(ctx, code: Option(str, "Brainfuck code to decode into text")):
     await send_code(ctx, decoded.text, lang="txt", filename="text.txt")
 
 
-@bot.slash_command(guild_ids=[881207955029110855])
+@bot.slash_command()
 async def invite(ctx):
     """Invite me to your server"""
     permissions = 2134207679
