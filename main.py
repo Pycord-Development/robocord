@@ -3,7 +3,7 @@ from discord.app import Option
 
 from tools import Bot, send_code
 
-bot = Bot(command_prefix='>', intents=discord.Intents.all())
+bot = Bot(command_prefix=';', intents=discord.Intents.all())
 
 brainfuck = bot.command_group("bf", "Commands related to brainfuck.", guild_ids=[881207955029110855])
 
