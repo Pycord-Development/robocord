@@ -29,6 +29,16 @@ async def decode(ctx, code: Option(str, "Brainfuck code to decode into text")):
     await send_code(ctx, decoded.text, lang="txt", filename="text.txt")
 
 
+@bot.slash_command(guild_ids=[881207955029110855])
+async def invite(ctx):
+    """Invite me to your server"""
+    permissions = 2134207679
+    url = discord.utils.oauth_url(client_id=bot.user.id, permissions=discord.Permissions(permissions=permissions),
+                                  scopes=("bot", "applications.commands"))
+    embed = discord.Embed(title="Invite", description=f"[Click Here]({url}) to invite me")
+    await ctx.respond(embed=embed)
+
+
 @bot.event
 async def on_ready():
     print("ready")
