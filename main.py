@@ -1,3 +1,5 @@
+import time
+
 import discord
 from discord.app import Option
 
@@ -38,6 +40,28 @@ async def invite(ctx):
     view = discord.ui.View()
     view.add_item(discord.ui.Button(label="Invite", url=url))
     await ctx.respond("I'm glad you want to add me to your server, here's an link!", view=view)
+
+
+@bot.slash_command()
+async def ping(ctx):
+    """Get the latency of the bot"""
+    latencies = {
+        "websocket": bot.latency,
+    }
+
+    def comp_message():
+        msgs = []
+        for title in latencies:
+            msgs.append(f"{title.title()}: {(latencies[title] * 1000):.0f}ms")
+        return '\n'.join(msgs)
+
+    start = time.perf_counter()
+    await ctx.respond(comp_message())
+    end = time.perf_counter()
+
+    latencies["round trip"] = end - start
+
+    await ctx.edit(content=comp_message())
 
 
 @bot.event
