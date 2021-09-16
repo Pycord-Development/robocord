@@ -7,9 +7,13 @@ from tools import Bot, send_code, get_prefix
 
 bot = Bot(command_prefix=get_prefix,
           intents=discord.Intents.all(),
-          activity=discord.Activity(type=discord.ActivityType.watching, name="Pycord"))
+          activity=discord.Activity(type=discord.ActivityType.watching, name="Pycord"),
+          description="The official pycord bot")
 
 brainfuck = bot.command_group("bf", "Commands related to brainfuck.")
+github = bot.command_group("github", "Commands related to github.")
+
+repo = 'https://github.com/Pycord-Development/pycord'
 
 
 @brainfuck.command()
@@ -64,6 +68,24 @@ async def ping(ctx):
     latencies["round trip"] = end - start
 
     await ctx.edit(content=comp_message())
+
+
+@github.command()
+async def issue(ctx, number: Option(int, "Issue number")):
+    """View an issue from the pycord github repo"""
+    url = f"{repo}/issues/{number}"
+    view = discord.ui.View()
+    view.add_item(discord.ui.Button(label="View Issue", url=url))
+    await ctx.respond(f"Here's a link", view=view)
+
+
+@github.command()
+async def pr(ctx, number: Option(int, "Pull request number")):
+    """View a pull request from the pycord github repo"""
+    url = f"{repo}/pulls/{number}"
+    view = discord.ui.View()
+    view.add_item(discord.ui.Button(label="View Pull Request", url=url))
+    await ctx.respond(f"Here's a link", view=view)
 
 
 @bot.event
