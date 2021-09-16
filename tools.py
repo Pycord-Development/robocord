@@ -146,4 +146,4 @@ class Timer:
 
 async def get_prefix(bot, message):
     # TODO: custom prefixes
-    return commands.when_mentioned_or(";")(bot, message)
+    return commands.when_mentioned_or(bot.config.get('prefix', ';'))(bot, message)
