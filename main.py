@@ -5,7 +5,9 @@ from discord.app import Option
 
 from tools import Bot, send_code, get_prefix
 
-bot = Bot(command_prefix=get_prefix, intents=discord.Intents.all())
+bot = Bot(command_prefix=get_prefix,
+          intents=discord.Intents.all(),
+          activity=discord.Activity(type=discord.ActivityType.watching, name="Pycord"))
 
 brainfuck = bot.command_group("bf", "Commands related to brainfuck.")
 
