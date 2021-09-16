@@ -87,6 +87,7 @@ class Bot(commands.Bot, ABC):
         self.load_extension('jishaku')
         self.brainfuck = bftools.BrainfuckTools()
         self.storage = Storage()
+        self.hang = False
 
     @property
     def config(self):

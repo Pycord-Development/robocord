@@ -15,6 +15,16 @@ github = bot.command_group("github", "Commands related to github.")
 
 repo = 'https://github.com/Pycord-Development/pycord'
 
+for cog in bot.config.get('cogs', []):
+    try:
+        bot.load_extension(f"cogs.{cog}")
+        print(cog)
+    except discord.DiscordException:
+        if __name__ == "__main__":
+            print(f'!!! {cog} !!!')
+        else:
+            raise
+
 
 @brainfuck.command()
 async def encode(ctx, text: Option(str, "Text to encode in brainfuck")):
@@ -93,4 +103,9 @@ async def on_ready():
     print("ready")
 
 
-bot.run()
+if __name__ == "__main__":
+    bot.run()
+    if bot.hang:
+        # We want to prevent this from finishing, but the bot is logged out
+        while True:
+            time.sleep(60)

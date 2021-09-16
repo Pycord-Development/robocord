@@ -1,4 +1,6 @@
 git+https://github.com/Pycord-Development/pycord@feature/slash
 git+https://github.com/BobDotCom/jishaku
+git+https://github.com/BobDotCom/aiosqlite_pool
 python-dotenv
 bftools
+psutil
