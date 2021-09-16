@@ -70,7 +70,7 @@ class Storage:
     def update_config(self):
         data = self.config.instance
         with open(f"{self.storage_dir}/config.json", "w") as f:
-            json.dump(data, f)
+            json.dump(data, f, indent=4)
 
 
 class Bot(commands.Bot, ABC):
