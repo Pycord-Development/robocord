@@ -35,8 +35,9 @@ async def invite(ctx):
     permissions = 2134207679
     url = discord.utils.oauth_url(client_id=bot.user.id, permissions=discord.Permissions(permissions=permissions),
                                   scopes=("bot", "applications.commands"))
-    embed = discord.Embed(title="Invite", description=f"[Click Here]({url}) to invite me")
-    await ctx.respond(embed=embed)
+    view = discord.ui.View()
+    view.add_item(discord.ui.Button(label="Invite", url=url))
+    await ctx.respond("I'm glad you want to add me to your server, here's an link!", view=view)
 
 
 @bot.event
