@@ -144,6 +144,6 @@ class Timer:
         return self.duration
 
 
-def get_prefix(bot, message):
+async def get_prefix(bot, message):
     # TODO: custom prefixes
-    return commands.when_mentioned_or(";")
+    return commands.when_mentioned_or(";")(bot, message)
