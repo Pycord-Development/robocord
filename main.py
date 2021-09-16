@@ -39,7 +39,7 @@ async def invite(ctx):
                                   scopes=("bot", "applications.commands"))
     view = discord.ui.View()
     view.add_item(discord.ui.Button(label="Invite", url=url))
-    await ctx.respond("I'm glad you want to add me to your server, here's an link!", view=view)
+    await ctx.respond("I'm glad you want to add me to your server, here's a link!", view=view)
 
 
 @bot.slash_command()
