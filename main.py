@@ -150,7 +150,8 @@ async def source(ctx, command: Option(str, "The command to view the source code 
         location = os.path.relpath(filename).replace('\\', '/')
 
         url = f'{source_url}/blob/{branch}/{location}#L{firstlineno}-L{firstlineno + len(lines) - 1}'
-        label = f"Source code for {discord.utils.escape_mentions(command)}"
+        content = discord.ext.commands.clean_content(escape_markdown=True).convert(ctx, command)
+        label = f'Source code for command "{content}"'
     view.add_item(discord.ui.Button(label="View Code", url=url))
     await ctx.respond(label, view=view)
 
