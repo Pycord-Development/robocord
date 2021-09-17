@@ -79,7 +79,7 @@ class Storage:
             return self.config
 
     def update_config(self):
-        data = self.config.instance
+        data = self.config
         with open(f"{self.storage_dir}/config.json", "w") as f:
             json.dump(data, f, indent=4)
 
