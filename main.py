@@ -21,10 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+import inspect
+import os
 import time
 
 import discord
-from discord.app import Option
+from discord import SlashCommand
+from discord.app import Option, SlashCommandGroup
 
 from tools import Bot, send_code, get_prefix
 
@@ -51,28 +54,28 @@ for cog in bot.config.get('cogs', []):
 
 @brainfuck.command()
 async def encode(ctx, text: Option(str, "Text to encode in brainfuck")):
-    """Encode text into brainfuck"""
+    """Encode text into brainfuck."""
     encoded = bot.brainfuck.encode(text)
     await send_code(ctx, encoded.code, lang="bf")
 
 
 @brainfuck.command(name="compile")
 async def _compile(ctx, code: Option(str, "Brainfuck code to compile into python")):
-    """Compile brainfuck into python"""
+    """Compile brainfuck into python."""
     compiled = bot.brainfuck.compile(code)
     await send_code(ctx, compiled.code, lang="py")
 
 
 @brainfuck.command()
 async def decode(ctx, code: Option(str, "Brainfuck code to decode into text")):
-    """Decode brainfuck into text"""
+    """Decode brainfuck into text."""
     decoded = bot.brainfuck.decode(code)
     await send_code(ctx, decoded.text, lang="txt", filename="text.txt")
 
 
 @bot.slash_command()
 async def invite(ctx):
-    """Invite me to your server"""
+    """Invite me to your server."""
     permissions = 2134207679
     url = discord.utils.oauth_url(client_id=bot.user.id, permissions=discord.Permissions(permissions=permissions),
                                   scopes=("bot", "applications.commands"))
@@ -83,7 +86,7 @@ async def invite(ctx):
 
 @bot.slash_command()
 async def ping(ctx):
-    """Get the latency of the bot"""
+    """Get the latency of the bot."""
     latencies = {
         "websocket": bot.latency,
     }
@@ -105,7 +108,7 @@ async def ping(ctx):
 
 @github.command()
 async def issue(ctx, number: Option(int, "Issue number")):
-    """View an issue from the pycord github repo"""
+    """View an issue from the pycord github repo."""
     url = f"{repo}/issues/{number}"
     view = discord.ui.View()
     view.add_item(discord.ui.Button(label="View Issue", url=url))
@@ -114,11 +117,43 @@ async def issue(ctx, number: Option(int, "Issue number")):
 
 @github.command()
 async def pr(ctx, number: Option(int, "Pull request number")):
-    """View a pull request from the pycord github repo"""
+    """View a pull request from the pycord github repo."""
     url = f"{repo}/pulls/{number}"
     view = discord.ui.View()
     view.add_item(discord.ui.Button(label="View Pull Request", url=url))
     await ctx.respond(f"Here's a link", view=view)
+
+
+@bot.slash_command()
+async def source(ctx, command: Option(str, "The command to view the source code for", required=False)):
+    """View the source for a particular command or the whole bot."""
+    source_url = 'https://github.com/Pycord-Development/robocord'
+    branch = 'main'
+    view = discord.ui.View()
+    if command is None:
+        url = source_url
+        label = "Source code for entire bot"
+    else:
+        command_split = command.split()
+        index = 0
+        obj = discord.utils.get(bot.application_commands.values(), name=command_split[index])
+        while isinstance(obj, SlashCommandGroup):
+            if index + 1 > len(command_split):
+                return await ctx.respond("Error: Command is a group. You must choose a subcommand from it.")
+            obj = discord.utils.get(obj.subcommands, name=command_split[index])
+        if not isinstance(obj, SlashCommand):
+            return await ctx.respond("Error: Command could not be found")
+        src = obj.callback.__code__
+        filename = src.co_filename
+        lines, firstlineno = inspect.getsourcelines(src)
+        location = os.path.relpath(filename).replace('\\', '/')
+
+        url = f'{source_url}/blob/{branch}/{location}#L{firstlineno}-L{firstlineno + len(lines) - 1}'
+        label = f"Source code for {discord.utils.escape_mentions(command)}"
+    view.add_item(discord.ui.Button(label="View Code", url=url))
+    await ctx.send(label, view=view)
+
+
 
 
 @bot.event
