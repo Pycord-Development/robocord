@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+import collections
 import io
 import json
 import os
@@ -34,40 +35,27 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 
-class Config(object):
-    def __init__(self, obj, parent):
-        object.__setattr__(self, "parent", parent)
-        object.__setattr__(self, 'instance', obj)
+class Config(collections.UserDict):
+    def __init__(self, __dict, parent, **kwargs):
+        self.parent = parent
+        super().__init__(__dict, **kwargs)
 
-    def __getattr__(self, name):
-        obj = getattr(self.instance, name)
-
-        # KEY idea for catching contained class attributes changes:
-        # recursively create ChangeTrigger derived class and wrap
-        # object in it if getting attribute is class instance/object
+    def __getitem__(self, key):
+        obj = super().__getitem__(key)
 
         if hasattr(obj, '__dict__'):
             return self.__class__(obj, self.parent)
         else:
             return obj
 
-    def __getitem__(self, name):
-        obj = self.instance[name]
-
-        if hasattr(obj, '__dict__'):
-            return self.__class__(obj, self.parent)
-        else:
-            return obj
-
-    def __setattr__(self, name, value):
-        if getattr(self.instance, name) != value:
+    def __setitem__(self, key, item):
+        if not hasattr(self, key) or super().get(key) != item:
             self._on_change()
-        setattr(self.instance, name, value)
+        super().__setitem__(key, item)
 
-    def __setitem__(self, name, value):
-        if self.instance[name] != value:
-            self._on_change()
-        self.instance[name] = value
+    def __delitem__(self, key):
+        self._on_change()
+        super().__delitem__(key)
 
     def _on_change(self):
         self.parent.update_config()
