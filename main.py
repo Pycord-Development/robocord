@@ -152,7 +152,7 @@ async def source(ctx, command: Option(str, "The command to view the source code 
         url = f'{source_url}/blob/{branch}/{location}#L{firstlineno}-L{firstlineno + len(lines) - 1}'
         label = f"Source code for {discord.utils.escape_mentions(command)}"
     view.add_item(discord.ui.Button(label="View Code", url=url))
-    await ctx.send(label, view=view)
+    await ctx.respond(label, view=view)
 
 
 class Developer(commands.Cog):
