@@ -68,7 +68,7 @@ class Owner(commands.Cog):
                 logging.error(e)
             python = sys.executable
             os.execl(python, python, *sys.argv)
-        await self.bot.logout()
+        await self.bot.close()
         embed = ctx.error('Failed to restart')
         await ctx.send(embed=embed)
 
@@ -76,10 +76,10 @@ class Owner(commands.Cog):
     async def _shutdown(self, ctx):
         await ctx.send(embed=ctx.embed(title='Shutting Down'))
         if sys.stdin.isatty():
-            await self.bot.logout()
+            await self.bot.close()
         else:
             self.bot.hang = True
-            await self.bot.logout()
+            await self.bot.close()
 
     @commands.command(name='sudo', aliases=['su'])
     async def _sudo(self, ctx):
