@@ -28,6 +28,7 @@ import time
 import discord
 from discord import SlashCommand
 from discord.app import Option, SlashCommandGroup
+from discord.ext import commands
 
 from tools import Bot, send_code, get_prefix
 
@@ -43,7 +44,7 @@ repo = 'https://github.com/Pycord-Development/pycord'
 
 for cog in bot.config.get('cogs', []):
     try:
-        bot.load_extension(f"cogs.{cog}")
+        bot.load_extension(cog)
         print(cog)
     except discord.DiscordException:
         if __name__ == "__main__":
@@ -154,6 +155,92 @@ async def source(ctx, command: Option(str, "The command to view the source code 
     await ctx.send(label, view=view)
 
 
+class Developer(commands.Cog):
+
+    def __init__(self, bot_):
+        self.bot = bot_
+
+    @commands.command(name='load', aliases=['l'])
+    @commands.is_owner()
+    async def _load(self, ctx, cog_, save: bool = False):
+        if save:
+            self.bot.config.get('cogs', []).append(cog_)
+        self.bot.load_extension(cog_)
+        await ctx.send(f'Loaded cog "{cog_}"{" (saved)" if save else ""}')
+
+    @commands.command(name='unload', aliases=['u'])
+    @commands.is_owner()
+    async def _unload(self, ctx, cog_, save: bool = False):
+        if save:
+            self.bot.config.get('cogs', []).remove(cog_)
+        self.bot.unload_extension(cog_)
+        await ctx.send(f'Unloaded cog "{cog_}"{" (saved)" if save else ""}')
+
+    @commands.command(name='reload', aliases=['r'])
+    @commands.is_owner()
+    async def _reload(self, ctx, cog_):
+        self.bot.reload_extension(cog_)
+        await ctx.send(f'Reloaded cog "{cog_}"')
+
+    @commands.command(name='loadall', aliases=['la'])
+    @commands.is_owner()
+    async def _loadall(self, ctx):
+        data = self.bot.config.get('cogs', [])
+        cogs = {
+            'loaded': [],
+            'not': []
+        }
+        for cog_ in data:
+            if cog_ in bot.extensions:
+                continue
+            try:
+                self.bot.load_extension(cog_)
+                cogs['loaded'].append(cog_)
+            except discord.DiscordException:
+                cogs['not'].append(cog_)
+
+        await ctx.send('\n'.join([
+            ('\U00002705' if cog_ in cogs['loaded'] else '\U0000274c')
+            + cog_ for cog_ in data]) or "No cogs to load")
+
+    @commands.command(name='unloadall', aliases=['ua'])
+    @commands.is_owner()
+    async def _unloadall(self, ctx):
+        cogs = {
+            'unloaded': [],
+            'not': []
+        }
+        processing = bot.extensions.copy()
+        for cog_ in processing:
+            try:
+                self.bot.unload_extension(cog_)
+                cogs['unloaded'].append(cog_)
+            except discord.DiscordException:
+                cogs['not'].append(cog_)
+        await ctx.send('\n'.join([
+            ('\U00002705' if cog_ in cogs['unloaded'] else '\U0000274c')
+            + cog_ for cog_ in processing]) or "No cogs to unload")
+
+    @commands.command(name='reloadall', aliases=['ra'])
+    @commands.is_owner()
+    async def _reloadall(self, ctx):
+        cogs = {
+            'reloaded': [],
+            'not': []
+        }
+        processing = bot.extensions.copy()
+        for cog_ in processing:
+            try:
+                self.bot.reload_extension(cog_)
+                cogs['reloaded'].append(cog_)
+            except discord.DiscordException:
+                cogs['not'].append(cog_)
+        await ctx.send('\n'.join([
+            ('\U00002705' if cog_ in cogs['reloaded'] else '\U0000274c')
+            + cog_ for cog_ in processing]) or "No cogs to reload")
+
+
+bot.add_cog(Developer(bot))
 
 
 @bot.event
