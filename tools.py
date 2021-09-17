@@ -22,6 +22,7 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
 import collections
+import copy
 import io
 import json
 import os
@@ -41,16 +42,10 @@ class Config(collections.UserDict):
         super().__init__(__dict, **kwargs)
 
     def __getitem__(self, key):
-        obj = super().__getitem__(key)
-
-        if hasattr(obj, '__dict__'):
-            return self.__class__(obj, self.parent)
-        else:
-            return obj
+        return copy.deepcopy(super().__getitem__(key))
 
     def __setitem__(self, key, item):
-        if not hasattr(self, key) or super().get(key) != item:
-            self._on_change()
+        self._on_change()
         super().__setitem__(key, item)
 
     def __delitem__(self, key):
@@ -79,7 +74,7 @@ class Storage:
             return self.config
 
     def update_config(self):
-        data = dict(self.config)
+        data = self.config.data
         with open(f"{self.storage_dir}/config.json", "w") as f:
             json.dump(data, f, indent=4)
 

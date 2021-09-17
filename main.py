@@ -165,7 +165,7 @@ class Developer(commands.Cog):
     @commands.is_owner()
     async def _load(self, ctx, cog_, save: bool = False):
         if save:
-            self.bot.config.setdefault('cogs', []).append(cog_)
+            self.bot.config['cogs'] = self.bot.config.get('cogs', []).append(cog_)
         self.bot.load_extension(cog_)
         await ctx.send(f'Loaded cog "{cog_}"{" (saved)" if save else ""}')
 
@@ -173,7 +173,7 @@ class Developer(commands.Cog):
     @commands.is_owner()
     async def _unload(self, ctx, cog_, save: bool = False):
         if save:
-            self.bot.config.setdefault('cogs', []).remove(cog_)
+            self.bot.config['cogs'] = self.bot.config.get('cogs', []).remove(cog_)
         self.bot.unload_extension(cog_)
         await ctx.send(f'Unloaded cog "{cog_}"{" (saved)" if save else ""}')
 
