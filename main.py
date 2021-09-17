@@ -126,6 +126,14 @@ async def on_ready():
     print("ready")
 
 
+@bot.event
+async def on_message_edit(before, after):
+    if before.content != after.content:  # invoke the command again on edit
+        if not after.author.bot:
+            ctx = await bot.get_context(after)
+            await bot.invoke(ctx)
+
+
 if __name__ == "__main__":
     bot.run()
     if bot.hang:
