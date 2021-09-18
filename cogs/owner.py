@@ -56,10 +56,9 @@ class Owner(commands.Cog):
         """
         Restart the bot.
         """
-        embed = discord.Embed(title="Be right back!")
-        await ctx.send(embed=embed)
         self.bot.cache['restart_channel'] = ctx.channel.id
         if sys.stdin.isatty():
+            await ctx.send("Logging out now...")
             try:
                 p = psutil.Process(os.getpid())
                 for handler in p.open_files() + p.connections():
@@ -68,7 +67,8 @@ class Owner(commands.Cog):
                 logging.error(e)
             python = sys.executable
             os.execl(python, python, *sys.argv)
-        await self.bot.close()
+        cog = self.bot.get_cog("Jishaku")
+        await cog.jsk_shutdown(ctx)
         embed = ctx.error('Failed to restart')
         await ctx.send(embed=embed)
 
