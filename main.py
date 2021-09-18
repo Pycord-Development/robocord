@@ -167,13 +167,7 @@ async def _joinpos(ctx, member):
             if 4 <= n % 100 <= 20
             else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
         )
-
-    embed = discord.Embed(
-        title="Member info",
-        description=f"{member.mention} was the {ord(all_members.index(member) + 1)} person to join",
-    )
-    await ctx.send(f"{member.mention} was the {ord(all_members.index(member) + 1)} person to join",
-                   allowedmentions=discord.AllowedMentions.none())
+    await ctx.send(f"{member.mention} was the {ord(all_members.index(member) + 1)} person to join {ctx.guild.name}")
 
 
 class Developer(commands.Cog):
