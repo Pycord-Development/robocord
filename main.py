@@ -32,10 +32,98 @@ from discord.ext import commands
 
 from tools import Bot, send_code, get_prefix
 
-bot = Bot(command_prefix=get_prefix,
-          intents=discord.Intents.all(),
-          activity=discord.Activity(type=discord.ActivityType.watching, name="Pycord"),
-          description="The official pycord bot")
+
+class HelpCommand(commands.HelpCommand):
+    def get_ending_note(self):
+        return "Use p!{0} [command] for more info on a command.".format(
+            self.invoked_with
+        )
+
+    def get_command_signature(self, command):
+        parent = command.full_parent_name
+        if len(command.aliases) > 0:
+            aliases = "|".join(command.aliases)
+            fmt = f"[{command.name}|{aliases}]"
+            if parent:
+                fmt = f"{parent}, {fmt}"
+            alias = fmt
+        else:
+            alias = command.name if not parent else f"{parent} {command.name}"
+        return f"{alias} {command.signature}"
+
+    async def send_bot_help(self, mapping):
+        embed = discord.Embed(title="Robocord", color=discord.Color.blurple())
+        description = self.context.bot.description
+        if description:
+            embed.description = description
+
+        for cog_, cmds in mapping.items():
+            name = "Other Commands" if cog_ is None else cog_.qualified_name
+            filtered = await self.filter_commands(cmds, sort=True)
+            if filtered:
+                value = "\u002C ".join(f"`{c.name}`" for c in cmds)
+                if cog_ and cog_.description:
+                    value = "{0}\n{1}".format(cog_.description, value)
+
+                embed.add_field(name=name, value=value, inline=False)
+
+        embed.set_footer(text=self.get_ending_note())
+        await self.get_destination().send(embed=embed)
+
+    async def send_cog_help(self, cog_):
+        embed = discord.Embed(title="{0.qualified_name} Commands".format(cog_))
+        if cog_.description:
+            embed.description = cog_.description
+
+        filtered = await self.filter_commands(cog_.get_commands(), sort=True)
+        for command in filtered:
+            embed.add_field(
+                name=self.get_command_signature(command),
+                value=command.short_doc or "...",
+                inline=False,
+            )
+
+        embed.set_footer(text=self.get_ending_note())
+        await self.get_destination().send(embed=embed)
+
+    async def send_group_help(self, group):
+        embed = discord.Embed(title=group.qualified_name)
+        if group.help:
+            embed.description = group.help
+
+        if isinstance(group, commands.Group):
+            filtered = await self.filter_commands(group.commands, sort=True)
+            for command in filtered:
+                embed.add_field(
+                    name=self.get_command_signature(command),
+                    value=command.short_doc or "...",
+                    inline=False,
+                )
+
+        embed.set_footer(text=self.get_ending_note())
+        await self.get_destination().send(embed=embed)
+
+    # This makes it so it uses the function above
+    # Less work for us to do since they're both similar.
+    # If you want to make regular command help look different then override it
+    send_command_help = send_group_help
+
+
+bot = commands.Bot(
+    command_prefix=get_prefix,
+    description="The Official Pycord Bot",
+    case_insensitive=True,
+    help_command=HelpCommand(),
+    activity=discord.Activity(
+        type=discord.ActivityType.competing, name="the fork race"
+    ),
+    intents=discord.Intents.all()
+)
+
+bot.owner_ids = [
+    690420846774321221, #bobdotcom
+    571638000661037056,  # BruceDev (pleeeeease)
+]
 
 brainfuck = bot.command_group("bf", "Commands related to brainfuck.")
 github = bot.command_group("github", "Commands related to github.")
@@ -259,7 +347,92 @@ async def on_message_edit(before, after):
         if not after.author.bot:
             ctx = await bot.get_context(after)
             await bot.invoke(ctx)
+          
+          
+#### ERROR HANDLER
 
+@bot.event
+async def on_command_error(ctx, error):
+    exception = error
+    if hasattr(ctx.command, "on_error"):
+        pass
+    error = getattr(error, "original", error)
+
+    if ctx.author.id in ctx.bot.owner_ids:
+        if isinstance(
+                error,
+            (
+                commands.MissingAnyRole,
+                commands.CheckFailure,
+                commands.DisabledCommand,
+                commands.CommandOnCooldown,
+                commands.MissingPermissions,
+                commands.MaxConcurrencyReached,
+            ),
+        ):
+            try:
+                await ctx.reinvoke()
+            except discord.ext.commands.CommandError:
+                pass
+            else:
+                return
+
+    if isinstance(
+            error,
+        (
+            commands.BadArgument,
+            commands.MissingRequiredArgument,
+            commands.NoPrivateMessage,
+            commands.CheckFailure,
+            commands.DisabledCommand,
+            commands.CommandInvokeError,
+            commands.TooManyArguments,
+            commands.UserInputError,
+            commands.NotOwner,
+            commands.MissingPermissions,
+            commands.BotMissingPermissions,
+            commands.MaxConcurrencyReached,
+            commands.CommandNotFound,
+        ),
+    ):
+        if not isinstance(error, commands.CommandNotFound):
+            embed = discord.Embed(
+                title="Oops! Something went wrong...",
+                description=f"Reason: {str(error)}",
+                color=discord.Color.red(),
+            )
+            embed.set_footer(
+                icon_url="https://i.imgur.com/0K0awOi.png",
+                text=f"If this keeps happening, please contact {owner}",
+            )
+            await ctx.send(embed=embed)
+
+    elif isinstance(error, commands.CommandOnCooldown):
+        time2 = datetime.timedelta(seconds=math.ceil(error.retry_after))
+        error = f"You are on cooldown. Try again after {humanize.precisedelta(time2)}"
+        embed = discord.Embed(title="Too soon!",
+                              description=error,
+                              color=discord.Color.red())
+        embed.set_author(name=ctx.author, icon_url=ctx.author.avatar.url)
+        embed.set_footer(
+            icon_url="https://i.imgur.com/0K0awOi.png",
+            text=f"If you think this is a mistake, please contact {owner}",
+        )
+        await ctx.send(embed=embed)
+
+    else:
+
+        raise error
+        embed = discord.Embed(
+            title="Oh no!",
+            description=
+            (f"An error occurred. My developer has been notified of it, but if it continues to occur please DM {owner}"
+             ),
+            color=discord.Color.red(),
+        )
+        await ctx.send(embed=embed)
+          
+          
 
 if __name__ == "__main__":
     bot.run()
