@@ -56,6 +56,22 @@ class Config(collections.UserDict):
         self.parent.update_config()
 
 
+class Context(discord.ApplicationContext):
+    async def respond(self, *args, **kwargs):
+        default = {
+            'allowedmentions': discord.AllowedMentions.none()
+        }
+        default.update(**kwargs)
+        await super().respond(*args, **kwargs)
+
+    async def send(self, *args, **kwargs):
+        default = {
+            'allowedmentions': discord.AllowedMentions.none()
+        }
+        default.update(**kwargs)
+        await super().send(*args, **kwargs)
+
+
 class Storage:
     def __init__(self, storage_dir="storage"):
         self.storage_dir = storage_dir
@@ -107,6 +123,11 @@ class Bot(commands.Bot, ABC):
             super().run(*args, **kwargs)
         else:
             super().run(self.token, **kwargs)
+
+    async def get_application_context(
+        self, interaction, cls=Context
+    ):
+        await super().get_application_context(interaction, cls)
 
 
 def escape(text):
