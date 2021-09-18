@@ -27,7 +27,7 @@ import time
 
 import discord
 from discord import SlashCommand
-from discord.app import Option, SlashCommandGroup
+from discord import Option, SlashCommandGroup
 from discord.ext import commands
 
 from tools import Bot, send_code, get_prefix
@@ -154,6 +154,26 @@ async def source(ctx, command: Option(str, "The command to view the source code 
         label = f'Source code for command "{content}"'
     view.add_item(discord.ui.Button(label="View Code", url=url))
     await ctx.respond(label, view=view)
+
+
+@bot.user_command(name="Join Position")
+async def _joinpos(ctx, member):
+    all_members = list(ctx.guild.members)
+    all_members.sort(key=lambda m: m.joined_at)
+
+    def ord(n):
+        return str(n) + (
+            "th"
+            if 4 <= n % 100 <= 20
+            else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
+        )
+
+    embed = discord.Embed(
+        title="Member info",
+        description=f"{member.mention} was the {ord(all_members.index(member) + 1)} person to join",
+    )
+    await ctx.send(f"{member.mention} was the {ord(all_members.index(member) + 1)} person to join",
+                   allowedmentions=discord.AllowedMentions.none())
 
 
 class Developer(commands.Cog):
