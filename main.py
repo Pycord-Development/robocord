@@ -167,7 +167,7 @@ async def _joinpos(ctx, member):
             if 4 <= n % 100 <= 20
             else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
         )
-    await ctx.send(f"{member.mention} was the {ord(all_members.index(member) + 1)} person to join {ctx.guild.name}")
+    await ctx.respond(f"{member.mention} was the {ord(all_members.index(member) + 1)} person to join {ctx.guild.name}")
 
 
 class Developer(commands.Cog):
