@@ -46,8 +46,7 @@ class Config(collections.UserDict):
         return copy.deepcopy(super().__getitem__(key))
 
     def __setitem__(self, key, item):
-        if item != self.get(key):
-            self._on_change()
+        self._on_change()
         super().__setitem__(key, item)
 
     def __delitem__(self, key):
@@ -81,6 +80,7 @@ class Context(discord.ApplicationContext):
 
 class Storage:
     def __init__(self, storage_dir="storage"):
+        self._initialized = False
         self.storage_dir = storage_dir
         self.config = None
         self.cache = None
@@ -93,6 +93,7 @@ class Storage:
         self.load_config()
         self.load_cache()
         self.pool = aiosqlite_pool.Pool(f"{self.storage_dir}/main.db")
+        self._initialized = True
 
     def load_config(self):
         with open(f"{self.storage_dir}/config.json", "r") as f:
@@ -107,14 +108,22 @@ class Storage:
             return self.cache
 
     def update_config(self):
-        data = self.config.data
-        with open(f"{self.storage_dir}/config.json", "w") as f:
-            json.dump(data, f, indent=4)
+        try:
+            data = self.config.data
+            with open(f"{self.storage_dir}/config.json", "w") as f:
+                json.dump(data, f, indent=4)
+        except AttributeError:
+            if self._initialized:
+                raise
 
     def update_cache(self):
-        data = self.cache.data
-        with open(f"{self.storage_dir}/cache.json", "w") as f:
-            json.dump(data, f, indent=4)
+        try:
+            data = self.cache.data
+            with open(f"{self.storage_dir}/cache.json", "w") as f:
+                json.dump(data, f, indent=4)
+        except AttributeError:
+            if self._initialized:
+                raise
 
 
 class Bot(commands.Bot, ABC):
