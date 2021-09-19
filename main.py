@@ -267,9 +267,12 @@ async def on_ready():
     print("ready")
     restart_channel = bot.cache.get("restart_channel")
     if restart_channel:
+        print("Restarted")
         del bot.cache["restart_channel"]
         channel = bot.get_channel(restart_channel)
         await channel.send("I'm back online")
+    else:
+        print(f"Logged in as {bot.user}")
 
 
 @bot.event
