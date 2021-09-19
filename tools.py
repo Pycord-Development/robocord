@@ -65,14 +65,14 @@ class Cache(Config):
 class Context(discord.ApplicationContext):
     async def respond(self, *args, **kwargs):
         default = {
-            'allowedmentions': discord.AllowedMentions.none()
+            'allowed_mentions': discord.AllowedMentions.none()
         }
         default.update(**kwargs)
         await super().respond(*args, **kwargs)
 
     async def send(self, *args, **kwargs):
         default = {
-            'allowedmentions': discord.AllowedMentions.none()
+            'allowed_mentions': discord.AllowedMentions.none()
         }
         default.update(**kwargs)
         await super().send(*args, **kwargs)
