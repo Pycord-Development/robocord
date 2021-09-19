@@ -56,10 +56,10 @@ class Config(collections.UserDict):
     def _on_change(self):
         self.parent.update_config()
 
+
 class Cache(Config):
     def _on_change(self):
         self.parent.update_cache()
-
 
 
 class Context(discord.ApplicationContext):
