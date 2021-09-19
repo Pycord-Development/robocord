@@ -127,7 +127,7 @@ class Bot(commands.Bot, ABC):
     async def get_application_context(
         self, interaction, cls=Context
     ):
-        await super().get_application_context(interaction, cls)
+        await super().get_application_context(interaction=interaction, cls=cls)
 
 
 def escape(text):
