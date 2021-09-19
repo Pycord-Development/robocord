@@ -106,20 +106,14 @@ class Storage:
             return self.cache
 
     def update_config(self):
-        try:
-            data = self.config.data
-            with open(f"{self.storage_dir}/config.json", "w") as f:
-                json.dump(data, f, indent=4)
-        except AttributeError:
-            pass
+        data = self.config.data
+        with open(f"{self.storage_dir}/config.json", "w") as f:
+            json.dump(data, f, indent=4)
 
     def update_cache(self):
-        try:
-            data = self.cache.data
-            with open(f"{self.storage_dir}/cache.json", "w") as f:
-                json.dump(data, f, indent=4)
-        except AttributeError:
-            pass
+        data = self.cache.data
+        with open(f"{self.storage_dir}/cache.json", "w") as f:
+            json.dump(data, f, indent=4)
 
 
 class Bot(commands.Bot, ABC):
