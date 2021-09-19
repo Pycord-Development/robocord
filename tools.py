@@ -30,6 +30,7 @@ import time
 from abc import ABC
 from functools import cached_property
 
+import aiosqlite_pool
 import bftools
 import discord
 from discord.ext import commands
@@ -82,6 +83,7 @@ class Storage:
             open(f"{self.storage_dir}/config.json", "x")
             open(f"{self.storage_dir}/config.json", "w").write("{}")
         self.load_config()
+        self.pool = aiosqlite_pool.Pool(f"{self.storage_dir}/main.db")
 
     def load_config(self):
         with open(f"{self.storage_dir}/config.json", "r") as f:
@@ -111,8 +113,8 @@ class Bot(commands.Bot, ABC):
         self.owner_ids = self.config.get('owner_ids', [690420846774321221, 556119013298667520])
         self.load_extension('jishaku')
         self.brainfuck = bftools.BrainfuckTools()
-        self.storage = Storage()
         self.hang = False
+        self.db = self.storage.pool
 
     @property
     def config(self):
