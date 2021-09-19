@@ -56,6 +56,11 @@ class Config(collections.UserDict):
     def _on_change(self):
         self.parent.update_config()
 
+class Cache(Config):
+    def _on_change(self):
+        self.parent.update_cache()
+
+
 
 class Context(discord.ApplicationContext):
     async def respond(self, *args, **kwargs):
@@ -77,6 +82,7 @@ class Storage:
     def __init__(self, storage_dir="storage"):
         self.storage_dir = storage_dir
         self.config = None
+        self.cache = None
         if not os.path.exists(self.storage_dir):
             os.mkdir(self.storage_dir)
         if not os.path.exists(f"{self.storage_dir}/config.json"):
@@ -91,10 +97,24 @@ class Storage:
             self.config = Config(data, self)
             return self.config
 
+    def load_cache(self):
+        with open(f"{self.storage_dir}/cache.json", "r") as f:
+            data = json.load(f)
+            self.cache = Cache(data, self)
+            return self.cache
+
     def update_config(self):
         try:
             data = self.config.data
             with open(f"{self.storage_dir}/config.json", "w") as f:
+                json.dump(data, f, indent=4)
+        except AttributeError:
+            pass
+
+    def update_cache(self):
+        try:
+            data = self.cache.data
+            with open(f"{self.storage_dir}/cache.json", "w") as f:
                 json.dump(data, f, indent=4)
         except AttributeError:
             pass
