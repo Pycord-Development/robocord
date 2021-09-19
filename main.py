@@ -265,11 +265,11 @@ bot.add_cog(Developer(bot))
 @bot.event
 async def on_ready():
     print("ready")
-    restart_channel = bot.cache.pop("restart_channel", None)
+    restart_channel = bot.cache.get("restart_channel")
     if restart_channel:
+        del bot.cache["restart_channel"]
         channel = bot.get_channel(restart_channel)
         await channel.send("I'm back online")
-
 
 
 @bot.event
