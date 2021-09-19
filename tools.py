@@ -46,7 +46,8 @@ class Config(collections.UserDict):
         return copy.deepcopy(super().__getitem__(key))
 
     def __setitem__(self, key, item):
-        self._on_change()
+        if item != self.__getitem__(key):
+            self._on_change()
         super().__setitem__(key, item)
 
     def __delitem__(self, key):
