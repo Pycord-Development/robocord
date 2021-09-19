@@ -89,6 +89,7 @@ class Storage:
             open(f"{self.storage_dir}/config.json", "x")
             open(f"{self.storage_dir}/config.json", "w").write("{}")
         self.load_config()
+        self.load_cache()
         self.pool = aiosqlite_pool.Pool(f"{self.storage_dir}/main.db")
 
     def load_config(self):
