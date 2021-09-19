@@ -85,9 +85,10 @@ class Storage:
         self.cache = None
         if not os.path.exists(self.storage_dir):
             os.mkdir(self.storage_dir)
-        if not os.path.exists(f"{self.storage_dir}/config.json"):
-            open(f"{self.storage_dir}/config.json", "x")
-            open(f"{self.storage_dir}/config.json", "w").write("{}")
+        for filename in ("config", "cache"):
+            if not os.path.exists(f"{self.storage_dir}/{filename}.json"):
+                open(f"{self.storage_dir}/{filename}.json", "x")
+                open(f"{self.storage_dir}/{filename}.json", "w").write("{}")
         self.load_config()
         self.load_cache()
         self.pool = aiosqlite_pool.Pool(f"{self.storage_dir}/main.db")
