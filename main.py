@@ -106,23 +106,32 @@ async def ping(ctx):
 
     await ctx.edit(content=comp_message())
 
+@github.command(guild_ids=guild_ids)
+async def issue(ctx, number: Option(int, "The issue number")):
+	url = f"https://github.com/Pycord-Development/pycord/issues/{number}"
+	response = requests.get(url)
+	view = discord.ui.View()
+	view.add_item(discord.ui.Button(label="View Issue", url = url))
+	if response.status_code == 200:
+		await ctx.respond(f"Issue Number: {number}", view=view)
+	else:
+		await ctx.respond(
+            f"That issue doesn't seem to exist. If you think this is a mistake, contact {owner}.", ephemeral=True
+        )
 
-@github.command()
-async def issue(ctx, number: Option(int, "Issue number")):
-    """View an issue from the pycord github repo."""
-    url = f"{repo}/issues/{number}"
-    view = discord.ui.View()
-    view.add_item(discord.ui.Button(label="View Issue", url=url))
-    await ctx.respond(f"Here's a link", view=view)
 
-
-@github.command()
-async def pr(ctx, number: Option(int, "Pull request number")):
-    """View a pull request from the pycord github repo."""
-    url = f"{repo}/pulls/{number}"
-    view = discord.ui.View()
-    view.add_item(discord.ui.Button(label="View Pull Request", url=url))
-    await ctx.respond(f"Here's a link", view=view)
+@github.command(guild_ids=guild_ids, name='pr', description='Get the link to a pull request')
+async def pr(ctx, number: Option(int, "The pr number")):
+	url = f"https://github.com/Pycord-Development/pycord/pull/{number}"
+	response = requests.get(url)
+	view = discord.ui.View()
+	view.add_item(discord.ui.Button(label="View Pull Request", url = url))
+	if response.status_code == 200:
+		await ctx.respond(f"Pull Request Number: {number}", view=view)
+	else:
+		await ctx.respond(
+            f"That pull request doesn't seem to exist in the repo. If you think this is a mistake, contact {owner}.", ephemeral=True
+        )
 
 
 @bot.slash_command()
