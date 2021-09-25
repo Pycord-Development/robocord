@@ -119,7 +119,7 @@ async def issue(ctx, number: Option(int, "Issue number")):
 @github.command()
 async def pr(ctx, number: Option(int, "Pull request number")):
     """View a pull request from the pycord github repo."""
-    url = f"{repo}/pulls/{number}"
+    url = f"{repo}/issues/{number}"
     view = discord.ui.View()
     view.add_item(discord.ui.Button(label="View Pull Request", url=url))
     await ctx.respond(f"Here's a link", view=view)
