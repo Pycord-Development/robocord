@@ -144,6 +144,7 @@ async def source(ctx, command: Option(str, "The command to view the source code 
             obj = discord.utils.get(obj.subcommands, name=command_split[index])
         if not isinstance(obj, SlashCommand):
             return await ctx.respond("Error: Command could not be found")
+        # noinspection PyUnresolvedReferences
         src = obj.callback.__code__
         filename = src.co_filename
         lines, firstlineno = inspect.getsourcelines(src)
@@ -161,13 +162,13 @@ async def _joinpos(ctx, member):
     all_members = list(ctx.guild.members)
     all_members.sort(key=lambda m: m.joined_at)
 
-    def ord(n):
+    def _ord(n):
         return str(n) + (
             "th"
             if 4 <= n % 100 <= 20
             else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
         )
-    await ctx.respond(f"{member.mention} was the {ord(all_members.index(member) + 1)} person to join {ctx.guild.name}")
+    await ctx.respond(f"{member.mention} was the {_ord(all_members.index(member) + 1)} person to join {ctx.guild.name}")
 
 
 class Developer(commands.Cog):
