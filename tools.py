@@ -30,11 +30,12 @@ import time
 from abc import ABC
 from functools import cached_property
 
-import aiosqlite_pool
 import bftools
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+from tortoise.models import Model
+from tortoise import fields, Tortoise
 
 
 class Config(collections.UserDict):
@@ -92,8 +93,13 @@ class Storage:
                 open(f"{self.storage_dir}/{filename}.json", "w").write("{}")
         self.load_config()
         self.load_cache()
-        self.pool = aiosqlite_pool.Pool(f"{self.storage_dir}/main.db")
         self._initialized = True
+
+    async def setup_db(self):
+        await Tortoise.init(
+            db_url=f'sqlite://{self.storage_dir}/main.db',
+            modules={'models': ['tools']})
+        await Tortoise.generate_schemas()
 
     def load_config(self):
         with open(f"{self.storage_dir}/config.json", "r") as f:
@@ -148,10 +154,6 @@ class Bot(commands.Bot, ABC):
     @property
     def cache(self):
         return self.storage.cache
-
-    @property
-    def db(self):
-        return self.storage.pool
 
     def run(self, *args, **kwargs):
         if len(args):
@@ -213,3 +215,16 @@ class Timer:
 async def get_prefix(bot, message):
     # TODO: custom prefixes
     return commands.when_mentioned_or(bot.config.get('prefix', ';'))(bot, message)
+
+
+class Tag(Model):
+    name = fields.CharField(null=False, max_length=100)
+    guild = fields.IntField(null=False)
+    author = fields.IntField(null=False)
+    content = fields.CharField(null=False, max_length=2000)
+    created = fields.DatetimeField(auto_now_add=True, null=False)
+    edited = fields.DatetimeField(auto_now=True, null=False)
+    uses = fields.IntField(null=False, default=0)
+
+    def raw_content(self):
+        return discord.utils.escape_markdown(self.content)

@@ -274,6 +274,7 @@ async def on_ready():
         await channel.send("I'm back online")
     else:
         print(f"Logged in as {bot.user}")
+    await bot.storage.setup_db()
 
 
 @bot.event
