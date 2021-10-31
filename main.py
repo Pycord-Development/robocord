@@ -33,6 +33,7 @@ from discord.ext import commands
 from tools import Bot, send_code, get_prefix
 
 bot = Bot(command_prefix=get_prefix,
+          case_insensitive=True,
           intents=discord.Intents.all(),
           activity=discord.Activity(type=discord.ActivityType.watching, name="Pycord"),
           description="The official pycord bot")
