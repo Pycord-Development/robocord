@@ -3,3 +3,4 @@ git+https://github.com/BobDotCom/jishaku
 python-dotenv
 bftools
 psutil
+tortoise
