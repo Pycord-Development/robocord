@@ -29,6 +29,7 @@ import os
 import time
 from abc import ABC
 from functools import cached_property
+from typing import Union
 
 import bftools
 import discord
@@ -228,3 +229,11 @@ class Tag(Model):
 
     def raw_content(self):
         return discord.utils.escape_markdown(self.content)
+
+
+class Lowercase:
+    def __init__(self):
+        pass
+
+    async def convert(self, text):
+        return text.lower()
