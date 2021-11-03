@@ -29,14 +29,14 @@ import tortoise
 
 
 def autocomplete_tag(owner=False, **kwargs):
-    async def wrapper(interaction, value):
-        kwargs['guild'] = interaction.guild.id
+    async def wrapper(ctx):
+        kwargs['guild'] = ctx.interaction.guild.id
         if owner:
-            if interaction.guild:
-                if not interaction.author.guild_permissions.manage_messages:
-                    kwargs['author'] = interaction.user.id
+            if ctx.interaction.guild:
+                if not ctx.interaction.author.guild_permissions.manage_messages:
+                    kwargs['author'] = ctx.interaction.user.id
             else:
-                kwargs['author'] = interaction.user.id
+                kwargs['author'] = ctx.interaction.user.id
 
         return [tag.name for tag in await Tag.filter(name__istartswith=value, **kwargs).limit(25)]
 
