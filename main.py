@@ -173,7 +173,7 @@ async def _joinpos(ctx, member):
 
 
 @bot.slash_command(name="role", guild_ids=[881207955029110855])
-@option(int,
+@option(type=int,
         name="name", 
         description="The role you want added",
         choices = [
