@@ -171,6 +171,19 @@ async def _joinpos(ctx, member):
             else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
         )
     await ctx.respond(f"{member.mention} was the {_ord(all_members.index(member) + 1)} person to join {ctx.guild.name}")
+        
+
+@bot.slash_command(name="events", guild_ids=[881207955029110855])
+async def _events(ctx):
+    role = guild.get_role(915701572003049482)
+    if not role:
+        await ctx.respond("Error: Couldn't find the events role")
+    if not role in ctx.author.roles:
+        await ctx.author.add_roles(role)
+        await ctx.respond(f"Added {role.mention}")
+    else:
+        await ctx.author.remove_roles(role)
+        await ctx.respond(f"Removed {role.mention}")
 
 
 class Developer(commands.Cog):
