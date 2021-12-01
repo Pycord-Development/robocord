@@ -171,16 +171,16 @@ async def _joinpos(ctx, member):
         )
     await ctx.respond(f"{member.mention} was the {_ord(all_members.index(member) + 1)} person to join {ctx.guild.name}")
 
-
+role_option = Option(
+    type=int,
+    name="name", 
+    description="The role you want added",
+    choices = [
+        OptionChoice("Events", 915701572003049482),
+        OptionChoice("Tester", 881968560635805706),
+    ])
 @bot.slash_command(name="role", guild_ids=[881207955029110855])
-@option(type=int,
-        name="name", 
-        description="The role you want added",
-        choices = [
-            OptionChoice("Events", 915701572003049482),
-            OptionChoice("Tester", 881968560635805706),
-        ])
-async def _role(ctx, role_id):
+async def _role(ctx, role_id: role_option):
     """Claim roles in the server"""
     assert role_id in (915701572003049482, 881968560635805706)
     role = guild.get_role(role_id)
