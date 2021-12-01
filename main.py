@@ -172,7 +172,7 @@ async def _joinpos(ctx, member):
     await ctx.respond(f"{member.mention} was the {_ord(all_members.index(member) + 1)} person to join {ctx.guild.name}")
 
 role_option = Option(
-    type=int,
+    int,
     name="name", 
     description="The role you want added",
     choices = [
