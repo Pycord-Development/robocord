@@ -173,15 +173,15 @@ async def _joinpos(ctx, member):
 
 role_option = Option(
     int,
-    name="name", 
     description="The role you want added",
     choices = [
         OptionChoice("Events", 915701572003049482),
         OptionChoice("Tester", 881968560635805706),
     ])
 @bot.slash_command(name="role", guild_ids=[881207955029110855])
-async def _role(ctx, role_id: role_option):
+async def _role(ctx, name: role_option):
     """Claim roles in the server"""
+    role_id = name
     assert role_id in (915701572003049482, 881968560635805706)
     role = guild.get_role(role_id)
     if not role:
