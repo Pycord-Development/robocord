@@ -175,7 +175,7 @@ async def _joinpos(ctx, member):
 
 @bot.slash_command(name="events", guild_ids=[881207955029110855])
 async def _events(ctx):
-    role = guild.get_role(915701572003049482)
+    role = ctx.guild.get_role(915701572003049482)
     if not role:
         await ctx.respond("Error: Couldn't find the events role")
     if not role in ctx.author.roles:
