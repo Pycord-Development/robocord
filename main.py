@@ -26,8 +26,7 @@ import os
 import time
 
 import discord
-from discord import SlashCommand
-from discord import Option, SlashCommandGroup
+from discord import SlashCommand, Option, SlashCommandGroup, option, OptionChoice
 from discord.ext import commands
 
 from tools import Bot, send_code, get_prefix
@@ -171,19 +170,28 @@ async def _joinpos(ctx, member):
             else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
         )
     await ctx.respond(f"{member.mention} was the {_ord(all_members.index(member) + 1)} person to join {ctx.guild.name}")
-        
 
-@bot.slash_command(name="events", guild_ids=[881207955029110855])
-async def _events(ctx):
-    role = ctx.guild.get_role(915701572003049482)
+
+@bot.slash_command(name="role", guild_ids=[881207955029110855])
+@option(int,
+        name="name", 
+        description="The role you want added",
+        choices = [
+            OptionChoice("Events", 915701572003049482),
+            OptionChoice("Tester", 881968560635805706),
+        ])
+async def _role(ctx, role_id):
+    """Claim roles in the server"""
+    assert role_id in (915701572003049482, 881968560635805706)
+    role = guild.get_role(role_id)
     if not role:
-        await ctx.respond("Error: Couldn't find the events role")
-    if not role in ctx.author.roles:
+        await ctx.respond("Error: Couldn't find that role")
+    elif not role in ctx.author.roles:
         await ctx.author.add_roles(role)
-        await ctx.respond(f"Added {role.mention}")
+        await ctx.respond(f"Added {role.mention} role")
     else:
         await ctx.author.remove_roles(role)
-        await ctx.respond(f"Removed {role.mention}")
+        await ctx.respond(f"Removed {role.mention} role")
 
 
 class Developer(commands.Cog):
