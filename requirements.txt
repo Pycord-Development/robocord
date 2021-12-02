@@ -1,5 +1,5 @@
-git+https://github.com/Pycord-Development/pycord
-git+https://github.com/BobDotCom/jishaku
+py-cord @ git+https://github.com/Pycord-Development/pycord
+jishaku @ git+https://github.com/Gorialis/jishaku
 python-dotenv
 bftools
 psutil
