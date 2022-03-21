@@ -38,8 +38,8 @@ bot = Bot(command_prefix=get_prefix,
           activity=discord.Activity(type=discord.ActivityType.watching, name="Pycord"),
           description="The official pycord bot")
 
-brainfuck = bot.group("bf", "Commands related to brainfuck.")
-github = bot.group("github", "Commands related to github.")
+brainfuck = bot.create_group("bf", "Commands related to brainfuck.")
+github = bot.create_group("github", "Commands related to github.")
 
 repo = 'https://github.com/Pycord-Development/pycord'
 
