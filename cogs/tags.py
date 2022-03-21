@@ -30,7 +30,7 @@ from tools import Tag, Lowercase
 
 
 def autocomplete_tag(owner=False, **kwargs):
-    async def wrapper(ctx, value):
+    async def wrapper(ctx):
         kwargs['guild'] = ctx.interaction.guild.id
         if owner:
             if ctx.interaction.guild:
@@ -39,7 +39,7 @@ def autocomplete_tag(owner=False, **kwargs):
             else:
                 kwargs['author'] = ctx.interaction.user.id
 
-        return [tag.name for tag in await Tag.filter(name__istartswith=value, **kwargs).limit(25)]
+        return [tag.name for tag in await Tag.filter(name__istartswith=ctx.value, **kwargs).limit(25)]
 
     return wrapper
 
