@@ -26,7 +26,7 @@ import os
 import time
 
 import discord
-from discord import SlashCommand, Option, SlashCommandGroup, option, OptionChoice
+from discord import SlashCommand, Option, SlashCommandGroup, option, OptionChoice, AllowedMentions
 from discord.ext import commands
 
 from tools import Bot, send_code, get_prefix
@@ -169,7 +169,7 @@ async def _joinpos(ctx, member):
             if 4 <= n % 100 <= 20
             else {1: "st", 2: "nd", 3: "rd"}.get(n % 10, "th")
         )
-    await ctx.respond(f"{member.mention} was the {_ord(all_members.index(member) + 1)} person to join {ctx.guild.name}")
+    await ctx.respond(f"{member.mention} was the {_ord(all_members.index(member) + 1)} person to join {ctx.guild.name}", allowed_mentions=AllowedMentions(users=False))
 
 role_option = Option(
     int,
