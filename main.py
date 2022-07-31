@@ -307,6 +307,282 @@ async def on_message_edit(before, after):
             ctx = await bot.get_context(after)
             await bot.invoke(ctx)
 
+@bot.user_command(name="Join Position")
+async def _joinpos(ctx, member: discord.Member):
+    all_members = list(ctx.guild.members)
+    all_members.sort(key=lambda m: m.joined_at)
+
+    def ord(n):
+        return str(n) + ("th" if 4 <= n % 100 <= 20 else {
+            1: "st",
+            2: "nd",
+            3: "rd"
+        }.get(n % 10, "th"))
+
+    embed = discord.Embed(
+        title="Member info",
+        description=
+        f"{member.mention} was the {ord(all_members.index(member) + 1)} person to join",
+    )
+    await ctx.send(embed=embed)
+
+
+MORSE_CODE_DICT = {
+    "A": ".-",
+    "B": "-...",
+    "C": "-.-.",
+    "D": "-..",
+    "E": ".",
+    "F": "..-.",
+    "G": "--.",
+    "H": "....",
+    "I": "..",
+    "J": ".---",
+    "K": "-.-",
+    "L": ".-..",
+    "M": "--",
+    "N": "-.",
+    "O": "---",
+    "P": ".--.",
+    "Q": "--.-",
+    "R": ".-.",
+    "S": "...",
+    "T": "-",
+    "U": "..-",
+    "V": "...-",
+    "W": ".--",
+    "X": "-..-",
+    "Y": "-.--",
+    "Z": "--..",
+    "1": ".----",
+    "2": "..---",
+    "3": "...--",
+    "4": "....-",
+    "5": ".....",
+    "6": "-....",
+    "7": "--...",
+    "8": "---..",
+    "9": "----.",
+    "0": "-----",
+    ", ": "--..--",
+    ".": ".-.-.-",
+    "?": "..--..",
+    "/": "-..-.",
+    "-": "-....-",
+    "(": "-.--.",
+    ")": "-.--.-",
+    "!": "-.-.--",
+    ",": "--..--",
+}
+
+# we make a list of what to replace with what
+
+
+# Function to encrypt the string
+# according to the morse code chart
+def encrypt(message):
+    cipher = ""
+    for letter in message:
+        if letter != " ":
+
+            # Looks up the dictionary and adds the
+            # correspponding morse code
+            # along with a space to separate
+            # morse codes for different characters
+            cipher += MORSE_CODE_DICT[letter] + " "
+        else:
+            # 1 space indicates different characters
+            # and 2 indicates different words
+            cipher += " "
+
+    return cipher
+
+
+# Function to decrypt the string
+# from morse to english
+def decrypt(message):
+
+    # extra space added at the end to access the
+    # last morse code
+    message += " "
+
+    decipher = ""
+    citext = ""
+    for letter in message:
+
+        # checks for space
+        if letter != " ":
+
+            # counter to keep track of space
+            i = 0
+
+            # storing morse code of a single character
+            citext += letter
+
+        # in case of space
+        else:
+            # if i = 1 that indicates a new character
+            i += 1
+
+            # if i = 2 that indicates a new word
+            if i == 2:
+
+                # adding space to separate words
+                decipher += " "
+            else:
+
+                # accessing the keys using their values (reverse of encryption)
+                decipher += list(MORSE_CODE_DICT.keys())[list(
+                    MORSE_CODE_DICT.values()).index(citext)]
+                citext = ""
+
+    return decipher
+
+
+@bot.message_command(name="Encrypt to Morse")
+async def _tomorse(ctx, message: discord.message):
+    result = encrypt(message.content.upper())
+    await ctx.send(result)
+
+
+@bot.message_command(name="Decrypt Morse")
+async def _frommorse(ctx, message: discord.message):
+    result = decrypt(message.content)
+    await ctx.send(result)
+
+
+@bot.message_command(name="Decrypt binary")
+async def _frombinary(ctx, message: discord.message):
+
+	if message.content.lower() == "01000000 01100101 01110110 01100101 01110010 01111001 01101111 01101110 01100101":
+		await ctx.respond("SMH. Allowed mentions are turned off. go do something better.")
+	else:
+		a_binary_string = message.content
+		binary_values = a_binary_string.split()
+
+		ascii_string = ""
+		for binary_value in binary_values:
+			an_integer = int(binary_value, 2)
+
+			ascii_character = chr(an_integer)
+
+			ascii_string += ascii_character
+
+		await ctx.send(ascii_string,
+					allowed_mentions=discord.AllowedMentions.none())
+
+
+@bot.message_command(name="Encrypt to binary")
+async def _tobinary(ctx, message: discord.message):
+	if message.content.lower() == 'bruce':
+		await ctx.respond("01010000 01101111 01100111 01100111 01100101 01110010 01110011 00101110")
+	elif message.content.lower() == 'easter egg':
+		await ctx.respond("01010000 01110010 01101111 01100010 01100001 01100010 01101100 01111001 00100000 01101110 01101111 01110100")
+
+	elif message.content.lower() == '@everyone':
+		await ctx.respond("Wow, you though allowed mentions were on? Smh.")
+	else:
+		a_string = message.content
+		a_byte_array = bytearray(a_string, "utf8")
+		byte_list = []
+
+		for byte in a_byte_array:
+			binary_representation = bin(byte)
+			byte_list.append(binary_representation)
+
+		await ctx.send(" ".join(byte_list))
+
+
+# ------
+# Commented because max commands reached
+# ------
+
+# @bot.slash_command(name="Decrypt from hex", guild_ids=[869782707226439720, 881207955029110855])
+# async def _fromhex(ctx, message:discord.message):
+# 	hex_string = message.content[2:]
+
+# 	bytes_object = bytes.fromhex(hex_string)
+
+# 	ascii_string = bytes_object.decode("ASCII")
+
+# 	await ctx.send(ascii_string)
+
+# @bot.message_command(name="Encrypt to hex")
+# async def _tohex(ctx, message:discord.message):
+# 	hex_string = message.content
+# 	an_integer = int(hex_string, 16)
+# 	hex_value = hex(an_integer)
+# 	await ctx.send(hex_value)
+
+
+@bot.user_command(name="Avatar")
+async def _avatar(ctx, member: discord.Member):
+    embed = discord.Embed(
+        title=f"{member}'s avatar!",
+        description=f"[Link]({member.avatar.url})",
+        color=member.color,
+    )
+    try:
+        embed.set_image(url=member.avatar.url)
+    except AttributeError:
+        embed.set_image(url=member.display_avatar.url)
+    await ctx.send(embed=embed)
+
+
+binary = bot.command_group("binary", "Set of tools for converting binary")
+
+
+@binary.command(name="encrypt")
+async def binary_encrypt(ctx,
+                         text: Option(
+                             str, "The string you want to convert to binary")):
+    a_string = text
+    a_byte_array = bytearray(a_string, "utf8")
+    byte_list = []
+
+    for byte in a_byte_array:
+        binary_representation = bin(byte)
+        byte_list.append(binary_representation[2:])
+
+    await ctx.send(" ".join(byte_list))
+
+
+@binary.command(name="decrypt")
+async def binary_decrypt(
+    ctx, text: Option(str, "The binary string you want to decrypt")):
+    a_binary_string = text
+    binary_values = a_binary_string.split()
+
+    ascii_string = ""
+    for binary_value in binary_values:
+        an_integer = int(binary_value, 2)
+
+        ascii_character = chr(an_integer)
+
+        ascii_string += ascii_character
+
+    await ctx.send(ascii_string,
+                   allowed_mentions=discord.AllowedMentions.none())
+
+slowmode = bot.command_group(name='slowmode', description="Slowmode related commands for moderators")
+
+@slowmode.command(name='set', description='Set the slowmode of the current channel')
+@commands.has_role(881407111211384902)
+async def set(ctx, time:Option(int, 'Enter the time in seconds')):
+	if time > 21600:
+		await ctx.respond(content=f"Slowmode of a channel must be {humanize.precisedelta(21600)} (21600 seconds) or less.", ephemeral=True)
+	else:
+		await ctx.channel.edit(slowmode_delay=time)
+		await ctx.respond(f"The slowmode of this channel has been changed to {humanize.precisedelta(time)} ({time}s)")
+
+@slowmode.command(name='off', description='Remove the slowmode from the current channel')
+@commands.has_role(881407111211384902)
+async def off(ctx):
+	if ctx.channel.slowmode_delay == 0:
+		await ctx.respond(content="This channel doesn't have a slowmode. Use `/slowmode set` to set a slowmode.", ephemeral=True)
+	await ctx.channel.edit(slowmode_delay=0)
+	await ctx.respond("Removed the slowmode from this channel!")
+          
 
 if __name__ == "__main__":
     bot.run()
