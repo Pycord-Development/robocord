@@ -1,4 +1,4 @@
-py-cord[speed]~=2.0.0b5
+py-cord[speed]~=2.3.2
 jishaku @ git+https://github.com/Gorialis/jishaku
 python-dotenv
 bftools
