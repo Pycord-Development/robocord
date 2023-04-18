@@ -126,6 +126,7 @@ async def pr(ctx, number: Option(int, "Pull request number")):
     await ctx.respond(f"Here's a link", view=view)
 
 
+
 @bot.slash_command()
 async def source(ctx, command: Option(str, "The command to view the source code for", required=False)):
     """View the source for a particular command or the whole bot."""
@@ -307,6 +308,67 @@ async def on_message_edit(before, after):
             ctx = await bot.get_context(after)
             await bot.invoke(ctx)
 
+@bot.event
+async def on_message(message):
+	if bot.afk_users.get(message.author.id):
+			del bot.afk_users[message.author.id]
+			return await message.channel.send(f'Welcome back {message.author.name}, you are no longer AFK')
+
+	for mention in message.mentions:
+		if bot.afk_users.get(mention.id):
+				return await message.channel.send(f'{mention.name} is AFK: {bot.afk_users[mention.id]}', allowed_mentions = discord.AllowedMentions.none())
+
+	await bot.process_commands(message)
+          
+bot.afk_users = {}
+          
+          
+slowmode = bot.command_group(name='slowmode', description="Slowmode related commands for moderators", guild_ids=guild_ids)
+
+@slowmode.command(name='set', description='Set the slowmode of the current channel')
+@commands.has_role(881407111211384902)
+async def set(ctx, time:Option(int, 'Enter the time in seconds')):
+	if ctx.author.guild_permissions.manage_messages:
+	
+		if time > 21600:
+			await ctx.respond(content=f"Slowmode of a channel must be {humanize.precisedelta(21600)} (21600 seconds) or less.", ephemeral=True)
+		else:
+			await ctx.channel.edit(slowmode_delay=time)
+			await ctx.respond(f"The slowmode of this channel has been changed to {humanize.precisedelta(time)} ({time}s)")
+	else:
+		await ctx.respond("You do not have the `Manage Message` permission which is required to run this command.", ephemeral=True)
+
+@slowmode.command(name='off', description='Remove the slowmode from the current channel')
+@commands.has_role(881407111211384902)
+async def off(ctx):
+	if ctx.author.guild_permissions.manage_messages:
+		if ctx.channel.slowmode_delay == 0:
+			await ctx.respond(content="This channel doesn't have a slowmode. Use `/slowmode set` to set a slowmode.", ephemeral=True)
+		await ctx.channel.edit(slowmode_delay=0)
+		await ctx.respond("Removed the slowmode from this channel!")
+	else:
+		await ctx.respond("You do not have the `Manage Message` permission which is required to run this command.", ephemeral=True)
+
+for i in ["jishaku", "cogs.rtfm", "cogs.modmail", "cogs.tags"]:
+    bot.load_extension(i)
+
+afk = bot.command_group(name='afk', description='AFK Commands', guild_ids=guild_ids)
+
+@afk.command(name='set')
+async def afk_set(ctx, *, reason = 'No reason provided'):
+	if bot.afk_users.get(ctx.author.id):
+		return await ctx.send(f'{ctx.author.name}, you\'re already AFK')
+	if len(reason) > 100: # so that chat doesn't flood when the reason has to be shown 
+		return await ctx.send(f'{ctx.author.name}, keep your AFK reason under 100 characters') 
+	bot.afk_users[ctx.author.id] = reason
+	await ctx.send(f'{ctx.author.name}, I set your AFK with the reason: {reason}', allowed_mentions=discord.AllowedMentions.none(), ephemeral=True) 
+
+@afk.command(name='remove')
+async def afk_remove(ctx):
+	if bot.afk_users.get(ctx.author.id):
+			del bot.afk_users[ctx.author.id]
+			return await ctx.send(f'Welcome back {ctx.author.name}, you are no longer AFK')
+          
 
 if __name__ == "__main__":
     bot.run()
